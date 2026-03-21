@@ -1,7 +1,7 @@
 "use client";
 
 import LoadingSection from "@/components/loading-section";
-import { VpsCard } from "@/components/vps-card";
+import { VpsCard } from "@/components/vps/vps-card";
 import { useApiKeyStore } from "@/store/useApiKeyStore";
 import type { VPS } from "@/types/vps";
 import { useEffect, useState } from "react";
