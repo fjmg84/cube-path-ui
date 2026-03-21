@@ -1,4 +1,4 @@
-import { BackupList } from "@/components/vps/backup-list";
+import { BackupList } from "@/components/vps/backups/backup-list";
 
 type BackupsPageProps = {
   params: Promise<{ id: string }>;
