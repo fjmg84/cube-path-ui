@@ -154,9 +154,72 @@ export function BackupList({ vpsId }: BackupListProps) {
   const { settings, backups, total } = backupsData;
 
   return (
-    <div className="space-y-6">
+    <section className="space-y-6">
       {/* Summary cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="overflow-hidden rounded-4xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="bg-linear-to-r from-cyan-500 via-sky-500 to-emerald-400 px-6 py-6 text-white">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-white/75">
+            Resumen de backups
+          </p>
+          <h2 className="mt-2 text-2xl font-semibold">Backups VPS #{vpsId}</h2>
+
+          <p className="mt-2 text-sm text-white/85">
+            Vista general del estado de los backups, programacion y retencion.
+          </p>
+        </div>
+
+        <div className="grid gap-4 px-6 py-5 sm:grid-cols-3">
+          <div className="rounded-2xl bg-zinc-50 px-4 py-3 dark:bg-zinc-800/80">
+            <p className="text-xs uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
+              Total
+            </p>
+            <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
+              {total}
+            </p>
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+              backups registrados
+            </p>
+          </div>
+          <div className="rounded-2xl bg-zinc-50 px-4 py-3 dark:bg-zinc-800/80">
+            <p className="text-xs uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
+              Estado servicio
+            </p>
+            <span
+              className={`mt-2 inline-block rounded-full px-3 py-1 text-sm font-medium ${
+                settings?.enabled
+                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
+              }`}
+            >
+              {settings?.enabled ? "Activo" : "Desactivado"}
+            </span>
+          </div>
+          <div className="rounded-2xl bg-zinc-50 px-4 py-3 dark:bg-zinc-800/80">
+            <p className="text-xs uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
+              Hora programada
+            </p>
+            <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
+              {settings ? formatHour(settings.schedule_hour) : "-"}
+            </p>
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+              retencion {settings ? `${settings.retention_days} dias` : "-"}
+            </p>
+          </div>
+
+          <div className="rounded-2xl bg-zinc-50 px-4 py-3 dark:bg-zinc-800/80">
+            <p className="text-xs uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
+              Max backups
+            </p>
+            <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
+              {settings ? settings.max_backups : "-"}
+            </p>
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+              limite configurado
+            </p>
+          </div>
+        </div>
+      </div>
+      {/* <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           <p className="text-xs uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
             Total
@@ -207,7 +270,7 @@ export function BackupList({ vpsId }: BackupListProps) {
             limite configurado
           </p>
         </div>
-      </div>
+      </div> */}
 
       {/* Backup list */}
       <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
@@ -309,6 +372,6 @@ export function BackupList({ vpsId }: BackupListProps) {
           </ul>
         )}
       </div>
-    </div>
+    </section>
   );
 }
