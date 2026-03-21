@@ -10,6 +10,7 @@ type VpsDetailNavProps = {
 const navItems = (vpsId: string) => [
   { href: `/vps/${vpsId}`, label: "Métricas" },
   { href: `/vps/${vpsId}/backups`, label: "Backups" },
+  { href: `/vps/${vpsId}/bandwidth-usage`, label: "Bandwidth" },
 ];
 
 export default function VpsDetailNav({ vpsId }: VpsDetailNavProps) {
