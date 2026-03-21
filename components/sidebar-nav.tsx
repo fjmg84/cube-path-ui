@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navItems = [
-  { href: "/settings", label: "Settings" },
+  { href: "/settings", label: "Configuración" },
   { href: "/vps", label: "VPS" },
 ];
 

@@ -4,7 +4,7 @@ export default function SettingsPage() {
   return (
     <section className="w-full max-w-3xl">
       <h2 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
-        Settings
+        Configuración
       </h2>
       <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
         Configura tu API key para consultar los datos de VPS y metricas.
