@@ -35,21 +35,32 @@ export default function BandwidthUsage({ vpsId }: BandwidthUsageProps) {
   const [bandwidth, setBandwidth] = useState<BandwidthUsageData | null>(null);
   const { apiKey } = useApiKeyStore();
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<number | null>(null);
 
   useEffect(() => {
     if (!apiKey) {
       setBandwidth(null);
       setLoading(false);
+      setRefreshing(false);
       setError(null);
       return;
     }
 
     let isMounted = true;
 
-    const fetchBandwidthUsage = async () => {
-      setLoading(true);
+    const fetchBandwidthUsage = async (isBackgroundRefresh = false) => {
+      if (!isMounted) {
+        return;
+      }
+
       setError(null);
+      if (isBackgroundRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
 
       try {
         const response = await fetch(
@@ -77,6 +88,7 @@ export default function BandwidthUsage({ vpsId }: BandwidthUsageProps) {
         }
 
         setBandwidth(data);
+        setLastUpdated(Date.now());
       } catch (caughtError) {
         console.error("Error fetching bandwidth usage:", caughtError);
         if (!isMounted) {
@@ -85,16 +97,23 @@ export default function BandwidthUsage({ vpsId }: BandwidthUsageProps) {
 
         setError("No se pudo cargar el uso de bandwidth de esta VPS.");
       } finally {
-        if (isMounted) {
-          setLoading(false);
+        if (!isMounted) {
+          return;
         }
+
+        setLoading(false);
+        setRefreshing(false);
       }
     };
 
     void fetchBandwidthUsage();
+    const intervalId = window.setInterval(() => {
+      void fetchBandwidthUsage(true);
+    }, 5000);
 
     return () => {
       isMounted = false;
+      window.clearInterval(intervalId);
     };
   }, [apiKey, vpsId]);
 
@@ -126,15 +145,31 @@ export default function BandwidthUsage({ vpsId }: BandwidthUsageProps) {
     <section className="space-y-6">
       <div className="overflow-hidden rounded-4xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
         <div className="bg-linear-to-r from-cyan-500 via-sky-500 to-emerald-400 px-6 py-6 text-white">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-white/75">
-            Bandwidth
-          </p>
-          <h2 className="mt-2 text-2xl font-semibold">
-            Uso acumulado VPS #{vpsId}
-          </h2>
-          <p className="mt-2 text-sm text-white/85">
-            Vista de consumo entrante, saliente y total en Bytes, GB y TB.
-          </p>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-white/75">
+                Bandwidth
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold">
+                Uso acumulado VPS #{vpsId}
+              </h2>
+              <p className="mt-2 text-sm text-white/80">
+                Vista de consumo entrante, saliente y total en Bytes, GB y TB.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3 rounded-full bg-white/15 px-4 py-2 text-sm backdrop-blur-sm">
+              <span
+                className={`h-2.5 w-2.5 rounded-full ${refreshing ? "animate-pulse bg-amber-200" : "bg-emerald-200"}`}
+                aria-hidden="true"
+              />
+              <span>
+                {refreshing
+                  ? "Actualizando..."
+                  : `Auto refresh cada 5s${lastUpdated ? ` · ${new Date(lastUpdated).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}` : ""}`}
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className="grid gap-4 px-6 py-5 sm:grid-cols-3">
