@@ -31,8 +31,6 @@ export async function GET(request: Request) {
   const backups = new URL(request.url).searchParams.get("backups");
   const metrics = new URL(request.url).searchParams.get("metrics");
 
-  console.log({ vpsId, backups, metrics });
-
   if ((backups || metrics) && !vpsId) {
     return NextResponse.json(
       { error: "Missing vps_id query parameter" },
@@ -43,10 +41,7 @@ export async function GET(request: Request) {
   const endpoint: Endpoint = backups ? "backups" : metrics ? "metrics" : "none";
   const vpsIdPart = vpsId ? `/${vpsId}` : "/";
 
-  console.log({ endpoint });
-
   const url = `${URL_CUBE_PATH}/vps${vpsIdPart}${ENDPOINTS[endpoint]}`;
-  console.log({ url });
 
   try {
     const response = await fetch(url, {
@@ -57,8 +52,6 @@ export async function GET(request: Request) {
       },
       cache: "no-store",
     });
-
-    console.log({ response });
 
     if (!response.ok) {
       return NextResponse.json(
