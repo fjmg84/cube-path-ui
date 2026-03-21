@@ -1,17 +1,7 @@
 import Link from "next/link";
+import { InfoRow } from "../info-row";
 import { StatusBadge } from "../status-badge";
 import type { VPS } from "@/types/vps";
-
-function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="flex items-start justify-between gap-4 py-1.5 text-sm">
-      <span className="shrink-0 text-gray-500 dark:text-zinc-400">{label}</span>
-      <span className="text-right font-medium text-gray-900 dark:text-zinc-100">
-        {value}
-      </span>
-    </div>
-  );
-}
 
 export function VpsCard({ vps }: { vps: VPS }) {
   const ipv4 = vps.floating_ips.list.find((ip) => ip.type === "IPv4");

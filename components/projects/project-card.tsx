@@ -1,17 +1,7 @@
 import Link from "next/link";
 import { StatusBadge } from "../status-badge";
 import type { ProjectEntry } from "@/types/project";
-
-function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="flex items-start justify-between gap-4 py-1.5 text-sm">
-      <span className="shrink-0 text-gray-500 dark:text-zinc-400">{label}</span>
-      <span className="text-right font-medium text-gray-900 dark:text-zinc-100">
-        {value}
-      </span>
-    </div>
-  );
-}
+import { InfoRow } from "../info-row";
 
 export function ProjectCard({ entry }: { entry: ProjectEntry }) {
   const { project, vps, networks, baremetals } = entry;
