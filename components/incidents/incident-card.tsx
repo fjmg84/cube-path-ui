@@ -1,3 +1,4 @@
+import { StatusBadge } from "../status-badge";
 import type { ReactNode } from "react";
 import type { Incident } from "@/types/incident";
 
@@ -29,24 +30,6 @@ function SeverityBadge({ severity }: { severity: string }) {
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const isResolved = status === "resolved";
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-        isResolved
-          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
-          : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-      }`}
-    >
-      <span
-        className={`h-1.5 w-1.5 rounded-full ${isResolved ? "bg-emerald-500" : "bg-zinc-400"}`}
-      />
-      {status}
-    </span>
-  );
-}
-
 function formatDate(dateText: string | null) {
   if (!dateText) {
     return "-";
@@ -74,7 +57,12 @@ export function IncidentCard({ incident }: { incident: Incident }) {
         </div>
         <div className="flex items-center gap-2">
           <SeverityBadge severity={incident.severity} />
-          <StatusBadge status={incident.status} />
+          <StatusBadge
+            status={incident.status}
+            positiveStatuses={["resolved"]}
+            positiveTone="emerald"
+            neutralTone="zinc"
+          />
         </div>
       </div>
 
@@ -119,7 +107,12 @@ export function IncidentCard({ incident }: { incident: Incident }) {
                 className="rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-800/50"
               >
                 <div className="mb-1 flex items-center justify-between gap-3">
-                  <StatusBadge status={update.status} />
+                  <StatusBadge
+                    status={update.status}
+                    positiveStatuses={["resolved"]}
+                    positiveTone="emerald"
+                    neutralTone="zinc"
+                  />
                   <span className="text-xs text-gray-500 dark:text-zinc-400">
                     {formatDate(update.created_at)}
                   </span>

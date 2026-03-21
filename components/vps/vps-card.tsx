@@ -1,23 +1,6 @@
 import Link from "next/link";
+import { StatusBadge } from "../status-badge";
 import type { VPS } from "@/types/vps";
-
-function StatusBadge({ status }: { status: string }) {
-  const isActive = status === "active";
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-        isActive
-          ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400"
-          : "bg-gray-100 text-gray-600 dark:bg-zinc-800 dark:text-zinc-400"
-      }`}
-    >
-      <span
-        className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-green-500" : "bg-gray-400"}`}
-      />
-      {status}
-    </span>
-  );
-}
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
