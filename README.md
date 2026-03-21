@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CubePath UI
 
-## Getting Started
+Panel web para consultar y monitorear VPS de CubePath.
 
-First, run the development server:
+## Stack Actual
+
+- `Next.js 16.2.1` (App Router)
+- `React 19.2.4`
+- `TypeScript`
+- `Tailwind CSS v4`
+- `Zustand` (persistencia de API key)
+- `Recharts` (gráficas de métricas)
+
+## Funcionalidades
+
+- Configuración de API key desde UI (`/settings`).
+- Listado de VPS (`/vps`).
+- Detalle de VPS con layout compartido y navegación lateral:
+  - Métricas en tiempo real (`/vps/[id]`)
+  - Backups (`/vps/[id]/backups`)
+  - Bandwidth usage (`/vps/[id]/bandwidth-usage`)
+- Auto refresh en métricas.
+- Proxy backend en `app/api/vps/route.ts` para centralizar llamadas a CubePath.
+
+## Rutas Principales
+
+- `GET /settings`: configuración de API key.
+- `GET /vps`: listado de instancias.
+- `GET /vps/:id`: dashboard de métricas.
+- `GET /vps/:id/backups`: historial de backups.
+- `GET /vps/:id/bandwidth-usage`: consumo acumulado de bandwidth.
+
+## API Interna (Proxy)
+
+Ruta: `GET /api/vps`
+
+Query params soportados:
+
+- `vps_id` (obligatorio cuando se consulta un recurso de una VPS específica)
+- `metrics=true`
+- `backups=true`
+- `bandwidth_use=true` (alias soportado también: `bandwidth_usage=true`)
+
+Ejemplos:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Listado de VPS
+curl -H "Authorization: Bearer <API_KEY>" "http://localhost:3000/api/vps"
+
+# Métricas de una VPS
+curl -H "Authorization: Bearer <API_KEY>" "http://localhost:3000/api/vps?metrics=true&vps_id=22570"
+
+# Backups de una VPS
+curl -H "Authorization: Bearer <API_KEY>" "http://localhost:3000/api/vps?backups=true&vps_id=22570"
+
+# Bandwidth usage de una VPS
+curl -H "Authorization: Bearer <API_KEY>" "http://localhost:3000/api/vps?bandwidth_use=true&vps_id=22570"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Variables de Entorno
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Crear archivo `.env.local`:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+URL_CUBE_PATH=https://<tu-api-cubepath>
+```
 
-## Learn More
+## Ejecutar el Proyecto
 
-To learn more about Next.js, take a look at the following resources:
+Instalar dependencias:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm install
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Levantar entorno de desarrollo:
 
-## Deploy on Vercel
+```bash
+pnpm dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Abrir en navegador:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`http://localhost:3000`
+
+## Scripts Disponibles
+
+- `pnpm dev`: inicia servidor de desarrollo.
+- `pnpm build`: compila para producción.
+- `pnpm start`: ejecuta build de producción.
+- `pnpm lint`: corre ESLint.
