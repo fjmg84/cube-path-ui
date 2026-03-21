@@ -1,4 +1,4 @@
-import { useVpsStore } from "@/store/useVpsSelected";
+import Link from "next/link";
 import type { VPS } from "@/types/vps";
 
 function StatusBadge({ status }: { status: string }) {
@@ -31,7 +31,6 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 export function VpsCard({ vps }: { vps: VPS }) {
-  const { saveVps } = useVpsStore();
   const ipv4 = vps.floating_ips.list.find((ip) => ip.type === "IPv4");
   const ipv6 = vps.floating_ips.list.find((ip) => ip.type === "IPv6");
 
@@ -97,14 +96,14 @@ export function VpsCard({ vps }: { vps: VPS }) {
         </div>
 
         <div className="flex items-center justify-end px-5 py-4 sm:col-span-2">
-          <button
+          <Link
+            href={`/vps/${vps.id}`}
             className="inline-flex items-center gap-2 rounded-full bg-linear-to-r from-sky-500 to-cyan-400 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-sky-500/30 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900 hover:cursor-pointer"
             aria-label={`View details for ${vps.name}`}
-            onClick={() => saveVps(vps.id)}
           >
-            <span>View Details</span>
+            <span>Ver detalles</span>
             <span aria-hidden="true">-&gt;</span>
-          </button>
+          </Link>
         </div>
       </div>
     </div>

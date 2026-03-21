@@ -22,8 +22,6 @@ type VpsMetrics = {
   };
 };
 
-const vps_id = "22570"; // Reemplaza con el ID real de la VPS que deseas consultar
-
 const rangeConfig: Record<RangeKey, { label: string; seconds: number | null }> =
   {
     "5m": { label: "5m", seconds: 5 * 60 },
@@ -89,7 +87,11 @@ function getPeakValue(data: MetricPoint[]) {
   return Math.max(...data.map(([, value]) => value));
 }
 
-function MetricsVPS() {
+type MetricsVPSProps = {
+  vpsId: string;
+};
+
+function MetricsVPS({ vpsId }: MetricsVPSProps) {
   const [vpsMetrics, setVpsMetrics] = useState<VpsMetrics | null>(null);
   const { apiKey } = useApiKeyStore();
   const [selectedRange, setSelectedRange] = useState<RangeKey>("15m");
@@ -122,7 +124,7 @@ function MetricsVPS() {
       }
 
       try {
-        const response = await fetch(`/api/vps/metrics?vps_id=${vps_id}`, {
+        const response = await fetch(`/api/vps/metrics?vps_id=${vpsId}`, {
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -171,7 +173,7 @@ function MetricsVPS() {
       isMounted = false;
       window.clearInterval(intervalId);
     };
-  }, [apiKey]);
+  }, [apiKey, vpsId]);
 
   if (loading) {
     return <LoadingSection />;
@@ -240,7 +242,7 @@ function MetricsVPS() {
   return (
     <section className="flex w-full flex-col gap-6">
       <MetricsOverview
-        vpsId={vps_id}
+        vpsId={vpsId}
         windowStartLabel={formatDateTime(vpsMetrics.start)}
         windowEndLabel={formatDateTime(vpsMetrics.end)}
         refreshing={refreshing}
