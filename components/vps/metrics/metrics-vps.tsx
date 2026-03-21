@@ -10,8 +10,6 @@ import formatBytes from "@/lib/format-bytes";
 import { useApiKeyStore } from "@/store/useApiKeyStore";
 import { useEffect, useState } from "react";
 
-type RangeKey = "5m" | "15m" | "1h" | "all";
-
 type VpsMetrics = {
   start: number;
   end: number;
@@ -24,34 +22,6 @@ type VpsMetrics = {
     memory_usage: MetricPoint[];
   };
 };
-
-const rangeConfig: Record<RangeKey, { label: string; seconds: number | null }> =
-  {
-    "5m": { label: "5m", seconds: 5 * 60 },
-    "15m": { label: "15m", seconds: 15 * 60 },
-    "1h": { label: "1h", seconds: 60 * 60 },
-    all: { label: "Todo", seconds: null },
-  };
-
-function filterByRange(
-  data: MetricPoint[],
-  endTimestamp: number,
-  range: RangeKey,
-) {
-  const seconds = rangeConfig[range].seconds;
-  if (seconds === null) {
-    return data;
-  }
-
-  const minTimestamp = endTimestamp - seconds;
-  const filtered = data.filter(([timestamp]) => timestamp >= minTimestamp);
-
-  if (filtered.length > 0) {
-    return filtered;
-  }
-
-  return data.length > 0 ? [data[data.length - 1]] : [];
-}
 
 function formatPercent(value: number) {
   return `${(value * 100).toFixed(1)}%`;
@@ -97,7 +67,6 @@ type MetricsVPSProps = {
 function MetricsVPS({ vpsId }: MetricsVPSProps) {
   const [vpsMetrics, setVpsMetrics] = useState<VpsMetrics | null>(null);
   const { apiKey } = useApiKeyStore();
-  const [selectedRange, setSelectedRange] = useState<RangeKey>("15m");
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -204,43 +173,12 @@ function MetricsVPS({ vpsId }: MetricsVPSProps) {
 
   const rangeEndTimestamp = vpsMetrics.end;
 
-  const cpu = filterByRange(
-    vpsMetrics.metrics.cpu_usage,
-    rangeEndTimestamp,
-    selectedRange,
-  );
-  const memory = filterByRange(
-    vpsMetrics.metrics.memory_usage,
-    rangeEndTimestamp,
-    selectedRange,
-  );
-  const diskRead = filterByRange(
-    vpsMetrics.metrics.disk_read_usage,
-    rangeEndTimestamp,
-    selectedRange,
-  );
-  const diskWrite = filterByRange(
-    vpsMetrics.metrics.disk_write_usage,
-    rangeEndTimestamp,
-    selectedRange,
-  );
-  const networkReceive = filterByRange(
-    vpsMetrics.metrics.network_receive_usage,
-    rangeEndTimestamp,
-    selectedRange,
-  );
-  const networkTransmit = filterByRange(
-    vpsMetrics.metrics.network_transmit_usage,
-    rangeEndTimestamp,
-    selectedRange,
-  );
-
-  const rangeOptions = (Object.keys(rangeConfig) as RangeKey[]).map(
-    (rangeKey) => ({
-      key: rangeKey,
-      label: rangeConfig[rangeKey].label,
-    }),
-  );
+  const cpu = vpsMetrics.metrics.cpu_usage;
+  const memory = vpsMetrics.metrics.memory_usage;
+  const diskRead = vpsMetrics.metrics.disk_read_usage;
+  const diskWrite = vpsMetrics.metrics.disk_write_usage;
+  const networkReceive = vpsMetrics.metrics.network_receive_usage;
+  const networkTransmit = vpsMetrics.metrics.network_transmit_usage;
 
   return (
     <section className="flex w-full flex-col gap-6">
@@ -250,9 +188,6 @@ function MetricsVPS({ vpsId }: MetricsVPSProps) {
         windowEndLabel={formatDateTime(vpsMetrics.end)}
         refreshing={refreshing}
         lastUpdated={lastUpdated}
-        rangeOptions={rangeOptions}
-        selectedRange={selectedRange}
-        onSelectRange={(rangeKey) => setSelectedRange(rangeKey as RangeKey)}
         cpuNow={formatPercent(getLatestValue(cpu))}
         memoryNow={formatBytes(getLatestValue(memory))}
         trafficNow={formatThroughput(

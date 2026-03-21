@@ -1,17 +1,9 @@
-type RangeOption = {
-  key: string;
-  label: string;
-};
-
 type MetricsOverviewProps = {
   vpsId: string;
   windowStartLabel: string;
   windowEndLabel: string;
   refreshing: boolean;
   lastUpdated: number | null;
-  rangeOptions: RangeOption[];
-  selectedRange: string;
-  onSelectRange: (rangeKey: string) => void;
   cpuNow: string;
   memoryNow: string;
   trafficNow: string;
@@ -23,9 +15,6 @@ export function MetricsOverview({
   windowEndLabel,
   refreshing,
   lastUpdated,
-  rangeOptions,
-  selectedRange,
-  onSelectRange,
   cpuNow,
   memoryNow,
   trafficNow,
@@ -57,29 +46,6 @@ export function MetricsOverview({
                 : `Auto refresh cada 5s${lastUpdated ? ` · ${new Date(lastUpdated).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}` : ""}`}
             </span>
           </div>
-        </div>
-
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="text-xs uppercase tracking-[0.2em] text-white/70">
-            Rango
-          </span>
-          {rangeOptions.map((rangeOption) => {
-            const isActive = selectedRange === rangeOption.key;
-            return (
-              <button
-                key={rangeOption.key}
-                type="button"
-                onClick={() => onSelectRange(rangeOption.key)}
-                className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-                  isActive
-                    ? "bg-white text-sky-700"
-                    : "bg-white/20 text-white hover:bg-white/30"
-                }`}
-              >
-                {rangeOption.label}
-              </button>
-            );
-          })}
         </div>
       </div>
 
