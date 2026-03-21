@@ -124,7 +124,7 @@ function MetricsVPS({ vpsId }: MetricsVPSProps) {
       }
 
       try {
-        const response = await fetch(`/api/vps/metrics?vps_id=${vpsId}`, {
+        const response = await fetch(`/api/vps/?metrics=true&vps_id=${vpsId}`, {
           method: "GET",
           headers: {
             Accept: "application/json",

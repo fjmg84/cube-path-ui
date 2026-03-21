@@ -17,7 +17,7 @@ function ListAllVPS() {
         setLoading(true);
 
         try {
-          const response = await fetch("/api/vps/all", {
+          const response = await fetch("/api/vps", {
             method: "GET",
             headers: {
               Accept: "application/json",

@@ -99,7 +99,7 @@ export function BackupList({ vpsId }: BackupListProps) {
       setError(null);
 
       try {
-        const response = await fetch(`/api/vps/backups?vps_id=${vpsId}`, {
+        const response = await fetch(`/api/vps/?backups=true&vps_id=${vpsId}`, {
           method: "GET",
           headers: {
             Accept: "application/json",
