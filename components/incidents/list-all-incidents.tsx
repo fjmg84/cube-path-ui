@@ -6,6 +6,9 @@ import { IncidentsSelectorPanel } from "@/components/incidents/incidents-selecto
 import { useApiKeyStore } from "@/store/useApiKeyStore";
 import type { Incident } from "@/types/incident";
 import { useEffect, useState } from "react";
+import NotFoundComponent from "../not-found";
+import ErrorComponent from "../error";
+import NotFoundApiKeyComponent from "../not-found-api-key";
 
 const INCIDENTS_PER_PAGE = 6;
 
@@ -84,23 +87,15 @@ function ListAllIncidents() {
   }
 
   if (!apiKey) {
-    return (
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">
-        Ingresa tu API key para ver los incidentes.
-      </p>
-    );
+    return <NotFoundApiKeyComponent />;
   }
 
   if (error) {
-    return <p className="text-sm text-red-500 dark:text-red-400">{error}</p>;
+    return <ErrorComponent error={error} />;
   }
 
   if (incidents.length === 0) {
-    return (
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">
-        No hay incidentes disponibles.
-      </p>
-    );
+    return <NotFoundComponent />;
   }
 
   const totalPages = Math.max(

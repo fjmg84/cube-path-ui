@@ -5,6 +5,9 @@ import { ProjectCard } from "@/components/projects/project-card";
 import { useApiKeyStore } from "@/store/useApiKeyStore";
 import type { ProjectEntry } from "@/types/project";
 import { useEffect, useState } from "react";
+import ErrorComponent from "../error";
+import NotFoundComponent from "../not-found";
+import NotFoundApiKeyComponent from "../not-found-api-key";
 
 function ListAllProjects() {
   const [projects, setProjects] = useState<ProjectEntry[]>([]);
@@ -67,23 +70,15 @@ function ListAllProjects() {
   }
 
   if (!apiKey) {
-    return (
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">
-        Ingresa tu API key para ver los proyectos.
-      </p>
-    );
+    return <NotFoundApiKeyComponent />;
   }
 
   if (error) {
-    return <p className="text-sm text-red-500 dark:text-red-400">{error}</p>;
+    return <ErrorComponent error={error} />;
   }
 
   if (projects.length === 0) {
-    return (
-      <p className="text-sm text-gray-500 dark:text-zinc-400">
-        No hay proyectos disponibles.
-      </p>
-    );
+    return <NotFoundComponent />;
   }
 
   return (
