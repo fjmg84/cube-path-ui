@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AiChatFloating } from "@/components/ai-chat-floating";
 import { SidebarNav } from "@/components/sidebar-nav";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -33,6 +34,7 @@ export default function RootLayout({
           <SidebarNav />
           <main className="flex min-h-full flex-1 p-4 md:p-8">{children}</main>
         </div>
+        <AiChatFloating />
       </body>
     </html>
   );
