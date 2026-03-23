@@ -13,6 +13,11 @@ export default function SettingsPage() {
       <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
         <ApiKeyInput />
       </div>
+      <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+        Tu API key se guardará localmente en tu navegador y se usará para
+        autenticar tus solicitudes a la API. No compartas tu API key con nadie y
+        mantenla segura.
+      </p>
     </section>
   );
 }
