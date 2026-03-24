@@ -63,6 +63,8 @@ Crear archivo `.env.local`:
 
 ```bash
 URL_CUBE_PATH=https://<tu-api-cubepath>
+NEXT_PUBLIC_OPENROUTER_MODEL=openrouter-model
+NEXT_PUBLIC_OPENROUTER_API_KEY=openrouter-api-key
 ```
 
 ## Ejecutar el Proyecto
