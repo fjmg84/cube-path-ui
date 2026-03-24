@@ -1,8 +1,6 @@
 "use client";
 
-import ErrorComponent from "@/components/error";
-import LoadingSection from "@/components/loading-section";
-import NotFoundComponent from "@/components/not-found";
+import DisplayErrors from "@/components/display-errors";
 import useFetch from "@/hooks/useFetch";
 import { BackupListProps, BackupsResponse } from "@/types/backups";
 
@@ -49,16 +47,14 @@ export function BackupList({ vpsId }: BackupListProps) {
     data: backupsData,
   } = useFetch<BackupsResponse>(`/api/vps/?backups=true&vps_id=${vpsId}`);
 
-  if (loading) {
-    return <LoadingSection />;
-  }
-
-  if (error) {
-    return <ErrorComponent error={error} />;
-  }
-
-  if (!backupsData) {
-    return <NotFoundComponent />;
+  if (loading || error || !backupsData) {
+    return (
+      <DisplayErrors<BackupsResponse>
+        loading={loading}
+        error={error}
+        data={backupsData}
+      />
+    );
   }
 
   const { settings, backups, total } = backupsData;
@@ -129,58 +125,6 @@ export function BackupList({ vpsId }: BackupListProps) {
           </div>
         </div>
       </div>
-      {/* <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-xs uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
-            Total
-          </p>
-          <p className="mt-1 text-3xl font-semibold text-zinc-900 dark:text-zinc-100">
-            {total}
-          </p>
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            backups registrados
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-xs uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
-            Estado servicio
-          </p>
-          <span
-            className={`mt-2 inline-block rounded-full px-3 py-1 text-sm font-medium ${
-              settings?.enabled
-                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300"
-                : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
-            }`}
-          >
-            {settings?.enabled ? "Activo" : "Desactivado"}
-          </span>
-        </div>
-
-        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-xs uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
-            Hora programada
-          </p>
-          <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
-            {settings ? formatHour(settings.schedule_hour) : "-"}
-          </p>
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            retencion {settings ? `${settings.retention_days} dias` : "-"}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-xs uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
-            Max backups
-          </p>
-          <p className="mt-1 text-3xl font-semibold text-zinc-900 dark:text-zinc-100">
-            {settings ? settings.max_backups : "-"}
-          </p>
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            limite configurado
-          </p>
-        </div>
-      </div> */}
 
       {/* Backup list */}
       <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">

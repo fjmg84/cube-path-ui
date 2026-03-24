@@ -1,14 +1,11 @@
 "use client";
 
-import LoadingSection from "@/components/loading-section";
 import { IncidentCard } from "@/components/incidents/incident-card";
 import { IncidentsSelectorPanel } from "@/components/incidents/incidents-selector-panel";
 import type { Incident } from "@/types/incident";
 import { useState } from "react";
-import NotFoundComponent from "../not-found";
-import ErrorComponent from "../error";
-import NotFoundApiKeyComponent from "../not-found-api-key";
 import useFetch from "@/hooks/useFetch";
+import DisplayErrors from "../display-errors";
 
 const INCIDENTS_PER_PAGE = 6;
 
@@ -22,24 +19,16 @@ function ListAllIncidents() {
     loading,
     error,
     data: incidents,
-    apiKey,
   } = useFetch<Incident[]>("/api/incidents");
 
-  if (loading) {
-    return <LoadingSection />;
-  }
-
-  if (!apiKey) {
-    return <NotFoundApiKeyComponent />;
-  }
-
-  if (error) {
-    return <ErrorComponent error={error} />;
-  }
-
-  if (!incidents || incidents.length === 0) {
-    return <NotFoundComponent />;
-  }
+  if (loading || error || !incidents)
+    return (
+      <DisplayErrors<Incident[]>
+        loading={loading}
+        error={error}
+        data={incidents}
+      />
+    );
 
   const totalPages = Math.max(
     1,

@@ -1,9 +1,6 @@
 "use client";
 
-import ErrorComponent from "@/components/error";
-import LoadingSection from "@/components/loading-section";
-import NotFoundComponent from "@/components/not-found";
-import NotFoundApiKeyComponent from "@/components/not-found-api-key";
+import DisplayErrors from "@/components/display-errors";
 import { BandwidthStatCard } from "@/components/vps/bandwidth/bandwidth-stat-card";
 import useFetch from "@/hooks/useFetch";
 import { BandwidthUsageData } from "@/types/brandwidth";
@@ -29,26 +26,19 @@ export default function BandwidthUsage({ vpsId }: BandwidthUsageProps) {
     error,
     refreshing,
     lastUpdated,
-    apiKey,
   } = useFetch<BandwidthUsageData>(
     `/api/vps/?bandwidth_use=true&vps_id=${vpsId}`,
     true,
   );
 
-  if (loading) {
-    return <LoadingSection />;
-  }
-
-  if (!apiKey) {
-    return <NotFoundApiKeyComponent />;
-  }
-
-  if (error) {
-    return <ErrorComponent error={error} />;
-  }
-
-  if (!bandwidth) {
-    return <NotFoundComponent />;
+  if (loading || error || !bandwidth) {
+    return (
+      <DisplayErrors<BandwidthUsageData>
+        loading={loading}
+        error={error}
+        data={bandwidth}
+      />
+    );
   }
 
   return (

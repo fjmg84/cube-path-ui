@@ -1,9 +1,6 @@
 "use client";
 
-import ErrorComponent from "@/components/error";
-import LoadingSection from "@/components/loading-section";
-import NotFoundComponent from "@/components/not-found";
-import NotFoundApiKeyComponent from "@/components/not-found-api-key";
+import DisplayErrors from "@/components/display-errors";
 import {
   MetricCard,
   type MetricPoint,
@@ -11,8 +8,6 @@ import {
 import { MetricsOverview } from "@/components/vps/metrics/metrics-overview";
 import useFetch from "@/hooks/useFetch";
 import formatBytes from "@/lib/format-bytes";
-import { useApiKeyStore } from "@/store/useApiKeyStore";
-import { useEffect, useState } from "react";
 
 type VpsMetrics = {
   start: number;
@@ -69,112 +64,22 @@ type MetricsVPSProps = {
 };
 
 function MetricsVPS({ vpsId }: MetricsVPSProps) {
-  /*
-  const { apiKey } = useApiKeyStore();
-  const [vpsMetrics, setVpsMetrics] = useState<VpsMetrics | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<number | null>(null);
-  
-  useEffect(() => {
-    if (!apiKey) {
-      setVpsMetrics(null);
-      setLoading(false);
-      setRefreshing(false);
-      setError(null);
-      return;
-    }
-
-    let isMounted = true;
-
-    const fetchMetrics = async (isBackgroundRefresh = false) => {
-      if (!isMounted) {
-        return;
-      }
-
-      setError(null);
-      if (isBackgroundRefresh) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
-
-      try {
-        const response = await fetch(`/api/vps/?metrics=true&vps_id=${vpsId}`, {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-          cache: "no-store",
-        });
-
-        if (!response.ok) {
-          throw new Error(
-            response.statusText || "No se pudieron cargar las metricas",
-          );
-        }
-
-        const data = (await response.json()) as VpsMetrics;
-
-        if (!isMounted) {
-          return;
-        }
-
-        setVpsMetrics(data);
-        setLastUpdated(Date.now());
-      } catch (caughtError) {
-        console.error("Error fetching VPS data:", caughtError);
-        if (!isMounted) {
-          return;
-        }
-
-        setError("No se pudieron cargar las metricas de la VPS.");
-      } finally {
-        if (!isMounted) {
-          return;
-        }
-
-        setLoading(false);
-        setRefreshing(false);
-      }
-    };
-
-    fetchMetrics();
-    const intervalId = window.setInterval(() => {
-      void fetchMetrics(true);
-    }, 5000);
-
-    return () => {
-      isMounted = false;
-      window.clearInterval(intervalId);
-    };
-  }, [apiKey, vpsId]); */
-
   const {
     loading,
     error,
     data: vpsMetrics,
-    apiKey,
     refreshing,
     lastUpdated,
   } = useFetch<VpsMetrics>(`/api/vps/?metrics=true&vps_id=${vpsId}`, true);
 
-  if (loading) {
-    return <LoadingSection />;
-  }
-
-  if (!apiKey) {
-    return <NotFoundApiKeyComponent />;
-  }
-
-  if (error) {
-    return <ErrorComponent error={error} />;
-  }
-
-  if (!vpsMetrics) {
-    return <NotFoundComponent />;
+  if (loading || error || !vpsMetrics) {
+    return (
+      <DisplayErrors<VpsMetrics>
+        loading={loading}
+        error={error}
+        data={vpsMetrics}
+      />
+    );
   }
 
   const cpu = vpsMetrics.metrics.cpu_usage;
