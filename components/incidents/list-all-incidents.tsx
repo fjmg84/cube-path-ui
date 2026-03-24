@@ -3,84 +3,27 @@
 import LoadingSection from "@/components/loading-section";
 import { IncidentCard } from "@/components/incidents/incident-card";
 import { IncidentsSelectorPanel } from "@/components/incidents/incidents-selector-panel";
-import { useApiKeyStore } from "@/store/useApiKeyStore";
 import type { Incident } from "@/types/incident";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import NotFoundComponent from "../not-found";
 import ErrorComponent from "../error";
 import NotFoundApiKeyComponent from "../not-found-api-key";
+import useFetch from "@/hooks/useFetch";
 
 const INCIDENTS_PER_PAGE = 6;
 
 function ListAllIncidents() {
-  const [incidents, setIncidents] = useState<Incident[]>([]);
-  const { apiKey } = useApiKeyStore();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [selectedIncidentId, setSelectedIncidentId] = useState<number | null>(
     null,
   );
 
-  useEffect(() => {
-    if (!apiKey) {
-      setIncidents([]);
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
-    let isMounted = true;
-
-    const fetchIncidents = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await fetch("/api/incidents", {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(
-            response.statusText || "No se pudieron cargar los incidentes",
-          );
-        }
-
-        const data = (await response.json()) as Incident[];
-
-        if (!isMounted) {
-          return;
-        }
-
-        const nextIncidents = data || [];
-        setIncidents(nextIncidents);
-        setPage(1);
-        setSelectedIncidentId(nextIncidents[0]?.id ?? null);
-      } catch (caughtError) {
-        console.error("Error fetching incidents:", caughtError);
-        if (!isMounted) {
-          return;
-        }
-
-        setError("No se pudieron cargar los incidentes.");
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    void fetchIncidents();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [apiKey]);
+  const {
+    loading,
+    error,
+    data: incidents,
+    apiKey,
+  } = useFetch<Incident[]>("/api/incidents");
 
   if (loading) {
     return <LoadingSection />;
@@ -94,7 +37,7 @@ function ListAllIncidents() {
     return <ErrorComponent error={error} />;
   }
 
-  if (incidents.length === 0) {
+  if (!incidents || incidents.length === 0) {
     return <NotFoundComponent />;
   }
 

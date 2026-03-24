@@ -1,21 +1,12 @@
 "use client";
 
+import ErrorComponent from "@/components/error";
 import LoadingSection from "@/components/loading-section";
+import NotFoundComponent from "@/components/not-found";
+import NotFoundApiKeyComponent from "@/components/not-found-api-key";
 import { BandwidthStatCard } from "@/components/vps/bandwidth/bandwidth-stat-card";
-import { useApiKeyStore } from "@/store/useApiKeyStore";
-import { useEffect, useState } from "react";
-
-type BandwidthUsageData = {
-  in_bytes: number;
-  out_bytes: number;
-  total_bytes: number;
-  in_gb: number;
-  out_gb: number;
-  total_gb: number;
-  in_tb: number;
-  out_tb: number;
-  total_tb: number;
-};
+import useFetch from "@/hooks/useFetch";
+import { BandwidthUsageData } from "@/types/brandwidth";
 
 type BandwidthUsageProps = {
   vpsId: string;
@@ -32,113 +23,32 @@ function formatUnit(value: number, unit: string) {
 }
 
 export default function BandwidthUsage({ vpsId }: BandwidthUsageProps) {
-  const [bandwidth, setBandwidth] = useState<BandwidthUsageData | null>(null);
-  const { apiKey } = useApiKeyStore();
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (!apiKey) {
-      setBandwidth(null);
-      setLoading(false);
-      setRefreshing(false);
-      setError(null);
-      return;
-    }
-
-    let isMounted = true;
-
-    const fetchBandwidthUsage = async (isBackgroundRefresh = false) => {
-      if (!isMounted) {
-        return;
-      }
-
-      setError(null);
-      if (isBackgroundRefresh) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
-
-      try {
-        const response = await fetch(
-          `/api/vps/?bandwidth_use=true&vps_id=${vpsId}`,
-          {
-            method: "GET",
-            headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${apiKey}`,
-            },
-            cache: "no-store",
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error(
-            response.statusText || "No se pudo cargar el uso de bandwidth",
-          );
-        }
-
-        const data = (await response.json()) as BandwidthUsageData;
-
-        if (!isMounted) {
-          return;
-        }
-
-        setBandwidth(data);
-        setLastUpdated(Date.now());
-      } catch (caughtError) {
-        console.error("Error fetching bandwidth usage:", caughtError);
-        if (!isMounted) {
-          return;
-        }
-
-        setError("No se pudo cargar el uso de bandwidth de esta VPS.");
-      } finally {
-        if (!isMounted) {
-          return;
-        }
-
-        setLoading(false);
-        setRefreshing(false);
-      }
-    };
-
-    void fetchBandwidthUsage();
-    const intervalId = window.setInterval(() => {
-      void fetchBandwidthUsage(true);
-    }, 5000);
-
-    return () => {
-      isMounted = false;
-      window.clearInterval(intervalId);
-    };
-  }, [apiKey, vpsId]);
+  const {
+    data: bandwidth,
+    loading,
+    error,
+    refreshing,
+    lastUpdated,
+    apiKey,
+  } = useFetch<BandwidthUsageData>(
+    `/api/vps/?bandwidth_use=true&vps_id=${vpsId}`,
+    true,
+  );
 
   if (loading) {
     return <LoadingSection />;
   }
 
   if (!apiKey) {
-    return (
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">
-        Ingresa tu API key para ver el uso de bandwidth de la VPS.
-      </p>
-    );
+    return <NotFoundApiKeyComponent />;
   }
 
   if (error) {
-    return <p className="text-sm text-red-500 dark:text-red-400">{error}</p>;
+    return <ErrorComponent error={error} />;
   }
 
   if (!bandwidth) {
-    return (
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">
-        No hay datos de bandwidth disponibles.
-      </p>
-    );
+    return <NotFoundComponent />;
   }
 
   return (

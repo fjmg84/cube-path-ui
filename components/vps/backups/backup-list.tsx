@@ -1,46 +1,10 @@
 "use client";
 
+import ErrorComponent from "@/components/error";
 import LoadingSection from "@/components/loading-section";
-import { useApiKeyStore } from "@/store/useApiKeyStore";
-import { useEffect, useState } from "react";
-
-type BackupSettings = {
-  enabled: boolean;
-  schedule_hour: number;
-  retention_days: number;
-  max_backups: number;
-  id: number;
-  vps_id: number;
-  created_at: string;
-  updated_at: string;
-};
-
-type BackupItem = {
-  id: number;
-  vps_id: number;
-  backup_type: string | null;
-  backup_volid: string;
-  status: string | null;
-  progress: number;
-  size_gb: number;
-  pbs_storage: string;
-  started_at: string;
-  completed_at: string;
-  error_message: string;
-  notes: string;
-  created_at: string;
-};
-
-type BackupsResponse = {
-  backups: BackupItem[];
-  total: number;
-  has_settings: boolean;
-  settings: BackupSettings | null;
-};
-
-type BackupListProps = {
-  vpsId: string;
-};
+import NotFoundComponent from "@/components/not-found";
+import useFetch from "@/hooks/useFetch";
+import { BackupListProps, BackupsResponse } from "@/types/backups";
 
 function formatHour(hour: number) {
   return `${hour.toString().padStart(2, "0")}:00`;
@@ -79,76 +43,22 @@ function statusBadgeClass(status: string | null) {
 }
 
 export function BackupList({ vpsId }: BackupListProps) {
-  const [backupsData, setBackupsData] = useState<BackupsResponse | null>(null);
-  const { apiKey } = useApiKeyStore();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!apiKey) {
-      setBackupsData(null);
-      setError(null);
-      setLoading(false);
-      return;
-    }
-
-    let isMounted = true;
-
-    const fetchBackups = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await fetch(`/api/vps/?backups=true&vps_id=${vpsId}`, {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-          cache: "no-store",
-        });
-
-        if (!response.ok) {
-          throw new Error(response.statusText || "Failed to fetch backups");
-        }
-
-        const data = (await response.json()) as BackupsResponse;
-        if (!isMounted) return;
-        setBackupsData(data);
-      } catch (caughtError) {
-        console.error("Error fetching backups:", caughtError);
-        if (!isMounted) return;
-        setError("No se pudieron cargar los backups.");
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-
-    void fetchBackups();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [apiKey, vpsId]);
+  const {
+    loading,
+    error,
+    data: backupsData,
+  } = useFetch<BackupsResponse>(`/api/vps/?backups=true&vps_id=${vpsId}`);
 
   if (loading) {
     return <LoadingSection />;
   }
 
   if (error) {
-    return (
-      <p className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-800 dark:bg-red-950 dark:text-red-400">
-        {error}
-      </p>
-    );
+    return <ErrorComponent error={error} />;
   }
 
   if (!backupsData) {
-    return (
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">
-        No hay datos de backups disponibles.
-      </p>
-    );
+    return <NotFoundComponent />;
   }
 
   const { settings, backups, total } = backupsData;

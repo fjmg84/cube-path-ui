@@ -1,11 +1,15 @@
 "use client";
 
+import ErrorComponent from "@/components/error";
 import LoadingSection from "@/components/loading-section";
+import NotFoundComponent from "@/components/not-found";
+import NotFoundApiKeyComponent from "@/components/not-found-api-key";
 import {
   MetricCard,
   type MetricPoint,
 } from "@/components/vps/metrics/metric-card";
 import { MetricsOverview } from "@/components/vps/metrics/metrics-overview";
+import useFetch from "@/hooks/useFetch";
 import formatBytes from "@/lib/format-bytes";
 import { useApiKeyStore } from "@/store/useApiKeyStore";
 import { useEffect, useState } from "react";
@@ -65,13 +69,14 @@ type MetricsVPSProps = {
 };
 
 function MetricsVPS({ vpsId }: MetricsVPSProps) {
-  const [vpsMetrics, setVpsMetrics] = useState<VpsMetrics | null>(null);
+  /*
   const { apiKey } = useApiKeyStore();
+  const [vpsMetrics, setVpsMetrics] = useState<VpsMetrics | null>(null);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<number | null>(null);
-
+  
   useEffect(() => {
     if (!apiKey) {
       setVpsMetrics(null);
@@ -145,33 +150,32 @@ function MetricsVPS({ vpsId }: MetricsVPSProps) {
       isMounted = false;
       window.clearInterval(intervalId);
     };
-  }, [apiKey, vpsId]);
+  }, [apiKey, vpsId]); */
+
+  const {
+    loading,
+    error,
+    data: vpsMetrics,
+    apiKey,
+    refreshing,
+    lastUpdated,
+  } = useFetch<VpsMetrics>(`/api/vps/?metrics=true&vps_id=${vpsId}`, true);
 
   if (loading) {
     return <LoadingSection />;
   }
 
   if (!apiKey) {
-    return (
-      <p className="text-sm text-gray-500 dark:text-zinc-400">
-        Ingresa tu API key para ver las metricas de la VPS.
-      </p>
-    );
+    return <NotFoundApiKeyComponent />;
   }
 
   if (error) {
-    return <p className="text-sm text-red-500 dark:text-red-400">{error}</p>;
+    return <ErrorComponent error={error} />;
   }
 
   if (!vpsMetrics) {
-    return (
-      <p className="text-sm text-gray-500 dark:text-zinc-400">
-        No hay metricas disponibles.
-      </p>
-    );
+    return <NotFoundComponent />;
   }
-
-  const rangeEndTimestamp = vpsMetrics.end;
 
   const cpu = vpsMetrics.metrics.cpu_usage;
   const memory = vpsMetrics.metrics.memory_usage;

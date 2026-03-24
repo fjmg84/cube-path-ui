@@ -2,68 +2,19 @@
 
 import LoadingSection from "@/components/loading-section";
 import { ProjectCard } from "@/components/projects/project-card";
-import { useApiKeyStore } from "@/store/useApiKeyStore";
 import type { ProjectEntry } from "@/types/project";
-import { useEffect, useState } from "react";
 import ErrorComponent from "../error";
 import NotFoundComponent from "../not-found";
 import NotFoundApiKeyComponent from "../not-found-api-key";
+import useFetch from "@/hooks/useFetch";
 
 function ListAllProjects() {
-  const [projects, setProjects] = useState<ProjectEntry[]>([]);
-  const { apiKey } = useApiKeyStore();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!apiKey) {
-      setProjects([]);
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
-    let isMounted = true;
-
-    const fetchProjects = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await fetch("/api/projects", {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(
-            response.statusText || "No se pudieron cargar los proyectos",
-          );
-        }
-
-        const data = (await response.json()) as ProjectEntry[];
-
-        if (!isMounted) return;
-
-        setProjects(data || []);
-      } catch (caughtError) {
-        console.error("Error fetching projects:", caughtError);
-        if (!isMounted) return;
-        setError("No se pudieron cargar los proyectos.");
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-
-    void fetchProjects();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [apiKey]);
+  const {
+    loading,
+    error,
+    data: projects,
+    apiKey,
+  } = useFetch<ProjectEntry[]>("/api/projects");
 
   if (loading) {
     return <LoadingSection />;
@@ -77,7 +28,7 @@ function ListAllProjects() {
     return <ErrorComponent error={error} />;
   }
 
-  if (projects.length === 0) {
+  if (!projects || projects.length === 0) {
     return <NotFoundComponent />;
   }
 
