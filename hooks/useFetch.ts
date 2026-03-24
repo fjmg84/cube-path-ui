@@ -87,7 +87,6 @@ function useFetch<T>(url: string, refresh?: boolean) {
     loading,
     error,
     data,
-    apiKey,
     refreshing,
     lastUpdated,
   };
